@@ -304,11 +304,12 @@
                   "type": 3,
                   "content": {
                     "version": "KqlItem/1.0",
-                    "query": "resources \r\n| where type == \"microsoft.sql/servers/databases\"\r\n| where name contains \"old\" or name contains \"Dev\"or  name contains \"test\"\r\n| where resourceGroup in ({ResourceGroup})\r\n| extend SQLDBName=name, Type=sku.name, Tier=sku.tier, Location=location\r\n| order by id asc\r\n| project id, SQLDBName, Type, Tier, resourceGroup, Location, subscriptionId\r\n| join kind = innerunique(\r\n    resources\r\n    | extend replaced_tags = replace('{}', 'null', tostring(tags))\r\n    | extend replaced_tags = parse_json(replaced_tags)\r\n    | mv-expand replaced_tags\r\n    | extend tagName = tostring(bag_keys(replaced_tags)[0])\r\n    | extend tagValue = tostring(replaced_tags['{TagName}'])\r\n    | where tagName has '{TagName}' and tagValue has '{TagValue}'\r\n    | distinct id\r\n    )\r\n    on id",
+                    "query": "resources \r\n| where type == \"microsoft.sql/servers/databases\"\r\n| where name contains \"old\" or name contains \"Dev\"or  name contains \"test\"\r\n| where resourceGroup in ({ResourceGroup})\r\n| extend SQLDBName=name, Type=sku.name, Tier=sku.tier, Location=location, Department=tags.Department, Application=tags.Application\r\n| order by id asc\r\n|  join kind = innerunique(\r\n    resources\r\n    | extend replaced_tags = replace('{}', 'null', tostring(tags))\r\n    | extend replaced_tags = parse_json(replaced_tags)\r\n    | mv-expand replaced_tags\r\n    | extend tagName = tostring(bag_keys(replaced_tags)[0])\r\n    | extend tagValue = tostring(replaced_tags['{TagName}'])\r\n    | where tagName has '{TagName}' and tagValue has '{TagValue}'\r\n    | distinct id\r\n    )\r\n    on id \r\n| join kind=leftouter (ResourceContainers | where type=='microsoft.resources/subscriptions' | project Subscription=name, subscriptionId) on subscriptionId \r\n| project id, SQLDBName, Type, Tier, resourceGroup, Location, subscriptionId",
                     "size": 0,
                     "title": "Databases idle for over 30 days",
                     "noDataMessage": "No idle SQL DBs found",
                     "noDataMessageStyle": 3,
+                    "showExportToExcel": true,
                     "queryType": 1,
                     "resourceType": "microsoft.resourcegraph/resources",
                     "crossComponentResources": [
