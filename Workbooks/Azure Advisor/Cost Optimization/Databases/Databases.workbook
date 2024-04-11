@@ -309,6 +309,7 @@
                     "title": "Databases idle for over 30 days",
                     "noDataMessage": "No idle SQL DBs found",
                     "noDataMessageStyle": 3,
+                    "showExportToExcel": true,
                     "queryType": 1,
                     "resourceType": "microsoft.resourcegraph/resources",
                     "crossComponentResources": [
